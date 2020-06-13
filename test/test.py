@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-from protoparser import parser
+import protoparser
 
 content = '''syntax = "proto3";
 package service;
@@ -84,6 +84,5 @@ service JobFileService {
     }
 }
 '''
-
-print(parser.parse(content))
-print(parser.serialize2json(content))
+print(protoparser.parse(content))
+print(protoparser.serialize2json(content))

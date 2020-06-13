@@ -239,20 +239,20 @@ class ProtoTransformer(Transformer):
         return RpcFunc(name.value, in_type.value, out_type.value, uri.strip('"'))
 
 
-def __recursive_to_dict(obj):
+def _recursive_to_dict(obj):
     _dict = {}
 
     if isinstance(obj, tuple):
         node = obj._asdict()
         for item in node:
             if isinstance(node[item], list):  # Process as a list
-                _dict[item] = [__recursive_to_dict(x) for x in (node[item])]
+                _dict[item] = [_recursive_to_dict(x) for x in (node[item])]
             elif isinstance(node[item], tuple):  # Process as a NamedTuple
-                _dict[item] = __recursive_to_dict(node[item])
+                _dict[item] = _recursive_to_dict(node[item])
             elif isinstance(node[item], dict):
                 for k in node[item]:
                     if isinstance(node[item][k], tuple):
-                        node[item][k] = __recursive_to_dict(node[item][k])
+                        node[item][k] = _recursive_to_dict(node[item][k])
                 _dict[item] = node[item]
             else:  # Process as a regular element
                 _dict[item] = (node[item])
@@ -279,4 +279,4 @@ def parse(data):
 
 
 def serialize2json(data):
-    return json.dumps(__recursive_to_dict(parse(data)))
+    return json.dumps(_recursive_to_dict(parse(data)))
