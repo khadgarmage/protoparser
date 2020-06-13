@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-from proto3parser import parser
+from protoparser import parser
 
 content = '''syntax = "proto3";
 package service;
