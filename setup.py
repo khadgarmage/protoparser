@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
   name="proto-parser",
-  version="1.0.0",
+  version="1.1.0",
   author="xiaochun.liu",
   author_email="liuxiaochun@apache.org",
   description="A package for parsing proto files",
