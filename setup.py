@@ -21,7 +21,7 @@ setuptools.setup(
     "Topic :: Software Development :: Libraries :: Python Modules",
   ],
   install_requires=[
-    'pandas>=0.20.0',
+    'lark-parser>=0.8.6',
     'numpy>=1.14.0'
   ],
 )
