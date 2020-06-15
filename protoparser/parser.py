@@ -17,6 +17,7 @@
 # under the License.
 from lark import Lark, Transformer
 from collections import namedtuple
+import typing
 import json
 
 BNF = r'''
@@ -112,13 +113,16 @@ COMMENTS: COMMENT ( COMMENT )*
 %ignore WS
 '''
 
-Comment = namedtuple('Comment', 'content, tags')
-Enum = namedtuple('Enum', 'comment, name, fields')
-Message = namedtuple('Message', 'comment, name, fields, messages, enums')
+Comment = typing.NamedTuple('Comment', [('content', str), ('tags', typing.Dict[str, typing.Any])])
 Field = namedtuple('Field', 'comment, type, key_type, val_type, name, number')
-Service = namedtuple('Service', 'name, functions')
-RpcFunc = namedtuple('RpcFunc', 'name, in_type, out_type, uri')
-ProtoFile = namedtuple('ProtoFile', 'messages, enums, services')
+Enum = typing.NamedTuple('Enum', [('comment', 'Comment'), ('name', str), ('fields', typing.Dict[str, 'Field'])])
+Message = typing.NamedTuple('Message', [('comment', 'Comment'), ('name', str), ('fields', typing.Dict[str, 'Field']),
+                                        ('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum'])])
+Service = typing.NamedTuple('Service', [('name', str), ('functions', typing.Dict[str, 'RpcFunc'])])
+RpcFunc = typing.NamedTuple('RpcFunc', [('name', str), ('in_type', str), ('out_type', str), ('uri', str)])
+ProtoFile = typing.NamedTuple('ProtoFile',
+                              [('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum']),
+                               ('services', typing.Dict[str, 'Service'])])
 
 
 class ProtoTransformer(Transformer):
@@ -188,11 +192,11 @@ class ProtoTransformer(Transformer):
                 if not kv:
                     continue
                 tmp = kv.split('=')
-                key = tmp[0].strip(" /\n")
+                key = tmp[0].strip(" /\n").lower()
                 if key.find(" ") >= 0:
                     continue
                 if len(tmp) > 1:
-                    tags[key] = tmp[1]
+                    tags[key] = tmp[1].lower()
                 else:
                     tags[key] = True
         return Comment(comment, tags)
@@ -259,7 +263,14 @@ def _recursive_to_dict(obj):
     return _dict
 
 
-def parse(data):
+def parse_from_file(file: str):
+    with open(file, 'r') as f:
+        data = f.read()
+    if data:
+        return parse(data)
+
+
+def parse(data: str):
     parser = Lark(BNF, start='proto', parser='lalr')
     tree = parser.parse(data)
     trans_tree = ProtoTransformer().transform(tree)
@@ -280,3 +291,10 @@ def parse(data):
 
 def serialize2json(data):
     return json.dumps(_recursive_to_dict(parse(data)))
+
+
+def serialize2json_from_file(file: str):
+    with open(file, 'r') as f:
+        data = f.read()
+    if data:
+        return json.dumps(_recursive_to_dict(parse(data)))

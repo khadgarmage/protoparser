@@ -84,5 +84,7 @@ service JobFileService {
     }
 }
 '''
-print(protoparser.parse(content))
+data = protoparser.parse(content)
+for i in data.messages:
+    message = data.messages[i]
 print(protoparser.serialize2json(content))
