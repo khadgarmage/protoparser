@@ -87,7 +87,7 @@ range:  INTLIT [ "to" ( INTLIT | "max" ) ]
 fieldnames: FIELDNAME ( "," FIELDNAME )*
 
 enum: [ comments ] "enum" ENUMNAME enumbody
-enumbody: "{" ( option | enumfield | EMPTYSTATEMENT )* "}"
+enumbody: "{" ( enumfield | EMPTYSTATEMENT )* "}"
 enumfield: [ COMMENTS ] IDENT "=" INTLIT [ "[" enumvalueoption ( ","  enumvalueoption )* "]" ] ";"
 enumvalueoption: OPTIONNAME "=" CONSTANT
 
@@ -114,7 +114,7 @@ COMMENTS: COMMENT ( COMMENT )*
 '''
 
 Comment = typing.NamedTuple('Comment', [('content', str), ('tags', typing.Dict[str, typing.Any])])
-Field = namedtuple('Field', 'comment, type, key_type, val_type, name, number')
+Field = typing.NamedTuple('Field', [('comment', 'Comment'), ('type', str), ('key_type', str), ('val_type', str), ('name', str), ('number', int)])
 Enum = typing.NamedTuple('Enum', [('comment', 'Comment'), ('name', str), ('fields', typing.Dict[str, 'Field'])])
 Message = typing.NamedTuple('Message', [('comment', 'Comment'), ('name', str), ('fields', typing.Dict[str, 'Field']),
                                         ('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum'])])
