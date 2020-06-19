@@ -94,7 +94,7 @@ enumvalueoption: OPTIONNAME "=" CONSTANT
 message: [ comments ] "message" MESSAGENAME messagebody
 messagebody: "{" ( repeatedfield | field | enum | message | option | oneof | mapfield | reserved | EMPTYSTATEMENT )* "}"
 
-googleoption: "option" "(google.api.http)"  "=" "{" [ "post:" CONSTANT "body:" CONSTANT ] "}" ";"
+googleoption: "option" "(google.api.http)"  "=" "{" [ "post:" CONSTANT [ "body:" CONSTANT ] ] "}" ";"
 service: "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT )* "}"
 rpc: "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [ "stream" ] MESSAGETYPE ")" ( ( "{" ( googleoption | option | EMPTYSTATEMENT )* "}" ) | ";" )
 
@@ -116,7 +116,7 @@ COMMENTS: COMMENT ( COMMENT )*
 Comment = typing.NamedTuple('Comment', [('content', str), ('tags', typing.Dict[str, typing.Any])])
 Field = typing.NamedTuple('Field', [('comment', 'Comment'), ('type', str), ('key_type', str), ('val_type', str), ('name', str), ('number', int)])
 Enum = typing.NamedTuple('Enum', [('comment', 'Comment'), ('name', str), ('fields', typing.Dict[str, 'Field'])])
-Message = typing.NamedTuple('Message', [('comment', 'Comment'), ('name', str), ('fields', typing.Dict[str, 'Field']),
+Message = typing.NamedTuple('Message', [('comment', 'Comment'), ('name', str), ('fields', typing.List['Field']),
                                         ('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum'])])
 Service = typing.NamedTuple('Service', [('name', str), ('functions', typing.Dict[str, 'RpcFunc'])])
 RpcFunc = typing.NamedTuple('RpcFunc', [('name', str), ('in_type', str), ('out_type', str), ('uri', str)])
