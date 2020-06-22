@@ -15,14 +15,14 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-from lark import Lark, Transformer
+from lark import Lark, Transformer, Tree
 from collections import namedtuple
 import typing
 import json
 
 BNF = r'''
 OCTALDIGIT: "0..7"
-IDENT: LETTER ( LETTER | DECIMALDIGIT | "_" )*
+IDENT: ( "_" )* LETTER ( LETTER | DECIMALDIGIT | "_" )*
 FULLIDENT: IDENT ( "." IDENT )*
 MESSAGENAME: IDENT
 ENUMNAME: IDENT
@@ -122,7 +122,7 @@ Service = typing.NamedTuple('Service', [('name', str), ('functions', typing.Dict
 RpcFunc = typing.NamedTuple('RpcFunc', [('name', str), ('in_type', str), ('out_type', str), ('uri', str)])
 ProtoFile = typing.NamedTuple('ProtoFile',
                               [('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum']),
-                               ('services', typing.Dict[str, 'Service'])])
+                               ('services', typing.Dict[str, 'Service']), ('imports', typing.List[str])])
 
 
 class ProtoTransformer(Transformer):
@@ -156,6 +156,8 @@ class ProtoTransformer(Transformer):
         comment = Comment("", {})
         if len(tokens) < 4:
             type, fieldname, fieldnumber = tuple(tokens)
+        elif isinstance(tokens[3], Tree):
+            type, fieldname, fieldnumber, options = tuple(tokens)
         else:
             comment, type, fieldname, fieldnumber = tuple(tokens)
         return Field(comment, type.value, type.value, type.value, fieldname.value, int(fieldnumber.value))
@@ -277,6 +279,11 @@ def parse(data: str):
     enums = {}
     messages = {}
     services = {}
+    imports = []
+    import_tree = trans_tree.find_data('import')
+    for tree in import_tree:
+        for child in tree.children:
+            imports.append(child.value.strip('"'))
     top_data = trans_tree.find_data('topleveldef')
     for top_level in top_data:
         for child in top_level.children:
@@ -286,7 +293,7 @@ def parse(data: str):
                 enums[child.name] = child
             if isinstance(child, Service):
                 services[child.name] = child
-    return ProtoFile(messages, enums, services)
+    return ProtoFile(messages, enums, services, imports)
 
 
 def serialize2json(data):

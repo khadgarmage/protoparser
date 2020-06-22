@@ -45,7 +45,7 @@ enum PlayerType {
 message Player {
     //player id
     uint64 PlayerId = 1;
-    string Name = 2;
+    string Name = 2 [deprecated = true];
     // @max =1000
     int32 Level = 3;
     int32 Coins = 4;
@@ -73,6 +73,7 @@ message Player {
         //@dd =33
         OK = 1;
     }
+    repeated string _tags_ = 19;
 }
 
 service JobFileService {
@@ -84,7 +85,7 @@ service JobFileService {
     }
 }
 '''
-data = protoparser.parse(content)
-for i in data.messages:
-    message = data.messages[i]
+# data = protoparser.parse(content)
+# for i in data.messages:
+#     message = data.messages[i]
 print(protoparser.serialize2json(content))
