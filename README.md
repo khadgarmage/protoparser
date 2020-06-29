@@ -219,5 +219,5 @@ Output format is as following:
 }
 ```
 ## Bug Reports and Patches
-If you think you have found a bug, please visit the Proto3parser Github page at https://github.com/khadgarmage/proto3parser 
+If you think you have found a bug, please visit the Protoparser Github page at https://github.com/khadgarmage/protoparser 
 to report an issue, or fix it to push a pull request, thanks.
