@@ -1,9 +1,12 @@
-# Proto3parser
+# Protoparser
 A package for parsing proto3 files
 ## Introduction
 The purpose of this package is to parse the .proto file (version 3) into a Python data structure.
 We use it for code generation or other operations.
 ## How to Use
+```
+pip install proto-parser
+```
 Output format is as following:
 ```json
 
