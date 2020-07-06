@@ -67,7 +67,7 @@ message Player {
     //fmt =email
     string Email = 10;
     //@pattern=^(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]$
-    string HomePage = 11;
+    string HomePage = 11;//你好啊
     enum InnerType {
         TEST = 0;
         //@dd =33

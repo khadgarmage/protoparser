@@ -15,7 +15,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-from lark import Lark, Transformer, Tree
+from lark import Lark, Transformer, Tree, Token
 from collections import namedtuple
 import typing
 import json
@@ -70,7 +70,7 @@ OPTIONNAME: ( IDENT | "(" FULLIDENT ")" ) ( "." IDENT )*
 TYPE: "double" | "float" | "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string" | "bytes" | MESSAGETYPE | ENUMTYPE
 FIELDNUMBER: INTLIT
 
-field: [ comments ] TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
+field: [ comments ] TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";" [ COMMENT ]
 fieldoptions: fieldoption ( ","  fieldoption )*
 fieldoption: OPTIONNAME "=" CONSTANT
 repeatedfield: [ comments ] "repeated" field
@@ -154,12 +154,21 @@ class ProtoTransformer(Transformer):
     def field(self, tokens):
         '''Returns a Field namedtuple'''
         comment = Comment("", {})
-        if len(tokens) < 4:
-            type, fieldname, fieldnumber = tuple(tokens)
-        elif isinstance(tokens[3], Tree):
-            type, fieldname, fieldnumber, options = tuple(tokens)
-        else:
-            comment, type, fieldname, fieldnumber = tuple(tokens)
+        type = Token("TYPE", "")
+        fieldname = Token("FIELDNAME", "")
+        fieldnumber = Token("FIELDNUMBER", "")
+        for token in tokens:
+            if isinstance(token, Comment):
+                comment = token
+            elif isinstance(token, Token):
+                if token.type == "TYPE":
+                    type = token
+                elif token.type == "FIELDNAME":
+                    fieldname = token
+                elif token.type == "FIELDNUMBER":
+                    fieldnumber = token
+                elif token.type == "COMMENT":
+                    comment = Comment(token.value, {})
         return Field(comment, type.value, type.value, type.value, fieldname.value, int(fieldnumber.value))
 
     def repeatedfield(self, tokens):
