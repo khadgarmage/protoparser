@@ -70,7 +70,7 @@ OPTIONNAME: ( IDENT | "(" FULLIDENT ")" ) ( "." IDENT )*
 TYPE: "double" | "float" | "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string" | "bytes" | MESSAGETYPE | ENUMTYPE
 FIELDNUMBER: INTLIT
 
-field: [ comments ] TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";" [ COMMENT ]
+field: [ comments ] TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";" [ TAILCOMMENT ]
 fieldoptions: fieldoption ( ","  fieldoption )*
 fieldoption: OPTIONNAME "=" CONSTANT
 repeatedfield: [ comments ] "repeated" field
@@ -98,9 +98,10 @@ googleoption: "option" "(google.api.http)"  "=" "{" [ "post:" CONSTANT [ "body:"
 service: "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT )* "}"
 rpc: "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [ "stream" ] MESSAGETYPE ")" ( ( "{" ( googleoption | option | EMPTYSTATEMENT )* "}" ) | ";" )
 
-proto: syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
+proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
 topleveldef: message | enum | service
 
+TAILCOMMENT: /[^\0\n\\]/ COMMENT
 COMMENT: "//" /.*/ "\n"
 comments: COMMENT ( COMMENT )*
 COMMENTS: COMMENT ( COMMENT )*
@@ -122,7 +123,8 @@ Service = typing.NamedTuple('Service', [('name', str), ('functions', typing.Dict
 RpcFunc = typing.NamedTuple('RpcFunc', [('name', str), ('in_type', str), ('out_type', str), ('uri', str)])
 ProtoFile = typing.NamedTuple('ProtoFile',
                               [('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum']),
-                               ('services', typing.Dict[str, 'Service']), ('imports', typing.List[str])])
+                               ('services', typing.Dict[str, 'Service']), ('imports', typing.List[str]),
+                               ('options', typing.Dict[str, str])])
 
 
 class ProtoTransformer(Transformer):
@@ -293,6 +295,10 @@ def parse(data: str):
     for tree in import_tree:
         for child in tree.children:
             imports.append(child.value.strip('"'))
+    options = {}
+    option_tree = trans_tree.find_data('option')
+    for tree in option_tree:
+        options[tree.children[0]] = tree.children[1].strip('"')
     top_data = trans_tree.find_data('topleveldef')
     for top_level in top_data:
         for child in top_level.children:
@@ -302,7 +308,7 @@ def parse(data: str):
                 enums[child.name] = child
             if isinstance(child, Service):
                 services[child.name] = child
-    return ProtoFile(messages, enums, services, imports)
+    return ProtoFile(messages, enums, services, imports, options)
 
 
 def serialize2json(data):

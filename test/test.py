@@ -53,13 +53,13 @@ message Player {
     //@desc=Player's birthday
     string Birthday = 5;
     //@required
-    PlayerType Type = 6;
-    // @title App version history
+    PlayerType Type = 6;///YYY
+    // @title=App version history
     repeated string AppVerHistory = 7;
     repeated MessageItem MessageBox = 8;
     message StoreItem {
         uint32 Num = 1;
-        //@title 来源
+        //@title
         string From = 2;
     }
     //@ title =Warehouse
@@ -67,13 +67,12 @@ message Player {
     //fmt =email
     string Email = 10;
     //@pattern=^(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]$
-    string HomePage = 11;//你好啊
+    string HomePage = 11;
     enum InnerType {
         TEST = 0;
-        //@dd =33
         OK = 1;
     }
-    repeated string _tags_ = 19;
+    repeated string _tags_ = 19; //fdsafdsaf
 }
 
 service JobFileService {
@@ -85,7 +84,7 @@ service JobFileService {
     }
 }
 '''
-# data = protoparser.parse(content)
+#data = protoparser.parse(content)
 # for i in data.messages:
 #     message = data.messages[i]
 print(protoparser.serialize2json(content))
