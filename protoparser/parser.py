@@ -124,7 +124,7 @@ RpcFunc = typing.NamedTuple('RpcFunc', [('name', str), ('in_type', str), ('out_t
 ProtoFile = typing.NamedTuple('ProtoFile',
                               [('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum']),
                                ('services', typing.Dict[str, 'Service']), ('imports', typing.List[str]),
-                               ('options', typing.Dict[str, str])])
+                               ('options', typing.Dict[str, str]), ('package', str)])
 
 
 class ProtoTransformer(Transformer):
@@ -299,6 +299,12 @@ def parse(data: str):
     option_tree = trans_tree.find_data('option')
     for tree in option_tree:
         options[tree.children[0]] = tree.children[1].strip('"')
+
+    package = ''
+    package_tree = trans_tree.find_data('package')
+    for tree in package_tree:
+        package = tree.children[0]
+
     top_data = trans_tree.find_data('topleveldef')
     for top_level in top_data:
         for child in top_level.children:
@@ -308,7 +314,7 @@ def parse(data: str):
                 enums[child.name] = child
             if isinstance(child, Service):
                 services[child.name] = child
-    return ProtoFile(messages, enums, services, imports, options)
+    return ProtoFile(messages, enums, services, imports, options, package)
 
 
 def serialize2json(data):
