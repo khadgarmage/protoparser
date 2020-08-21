@@ -95,8 +95,8 @@ message: [ comments ] "message" MESSAGENAME messagebody
 messagebody: "{" ( repeatedfield | field | enum | message | option | oneof | mapfield | reserved | EMPTYSTATEMENT )* "}"
 
 googleoption: "option" "(google.api.http)"  "=" "{" [ "post:" CONSTANT [ "body:" CONSTANT ] ] "}" ";"
-service: "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT )* "}"
-rpc: "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [ "stream" ] MESSAGETYPE ")" ( ( "{" ( googleoption | option | EMPTYSTATEMENT )* "}" ) | ";" )
+service: [ comments ] "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT )* "}"
+rpc: [ comments ] "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [ "stream" ] MESSAGETYPE ")" ( ( "{" ( googleoption | option | EMPTYSTATEMENT )* "}" ) | ";" )
 
 proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
 topleveldef: message | enum | service
@@ -241,18 +241,31 @@ class ProtoTransformer(Transformer):
     def service(self, tokens):
         '''Returns a Service namedtuple'''
         functions = []
-        for i in range(1, len(tokens)):
-            functions.append(tokens[i])
-        return Service(tokens[0].value, functions)
+        name = ''
+        for i in range(0, len(tokens)):
+            if not isinstance(tokens[i], Comment):
+                if isinstance(tokens[i], RpcFunc):
+                    functions.append(tokens[i])
+                else:
+                    name = tokens[i].value
+        return Service(name, functions)
 
     def rpc(self, tokens):
         '''Returns a RpcFunc namedtuple'''
         uri = ''
-        if len(tokens) < 4:
-            name, in_type, out_type = tokens
-        else:
-            name, in_type, out_type, option_token = tokens
-            uri = option_token.children[0].value
+        in_type = ''
+        for token in tokens:
+            if isinstance(token, Token):
+                if token.type == "RPCNAME":
+                    name = token
+                elif token.type == "MESSAGETYPE":
+                    if in_type:
+                        out_type = token
+                    else:
+                        in_type = token
+            elif not isinstance(token, Comment):
+                option_token = token
+                uri = option_token.children[0].value
         return RpcFunc(name.value, in_type.value, out_type.value, uri.strip('"'))
 
 

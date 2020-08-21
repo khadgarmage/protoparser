@@ -75,10 +75,19 @@ message Player {
     repeated string _tags_ = 19; //fdsafdsaf
 }
 
+//fdsafsadfdsafsa
 service JobFileService {
+    //fdsafdsa
     rpc GDriveFileList (msg.GDriveFileListReq) returns(msg.FileListRep) {
         option (google.api.http) = {
             post: "/api/files/gdrive"
+            body: "*"
+        };
+    }
+        //fdsafdsa
+    rpc GDriveFileListx (msg.GDriveFileListReqx) returns(msg.FileListRepx) {
+        option (google.api.http) = {
+            post: "/api/files/gdrivex"
             body: "*"
         };
     }
