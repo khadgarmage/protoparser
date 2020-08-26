@@ -88,7 +88,7 @@ fieldnames: FIELDNAME ( "," FIELDNAME )*
 
 enum: [ comments ] "enum" ENUMNAME enumbody
 enumbody: "{" ( enumfield | EMPTYSTATEMENT )* "}"
-enumfield: [ COMMENTS ] IDENT "=" INTLIT [ "[" enumvalueoption ( ","  enumvalueoption )* "]" ] ";"
+enumfield: [ COMMENTS ] IDENT "=" INTLIT [ "[" enumvalueoption ( ","  enumvalueoption )* "]" ] ";" [ TAILCOMMENT ]
 enumvalueoption: OPTIONNAME "=" CONSTANT
 
 message: [ comments ] "message" MESSAGENAME messagebody
@@ -244,11 +244,19 @@ class ProtoTransformer(Transformer):
             if enumfield.data != 'enumfield':
                 continue
             comment = Comment("", {})
-            if len(enumfield.children) < 3:
-                name, value = enumfield.children
-            else:
-                comment, name, value = enumfield.children
-                comment = self.comments(comment)
+            name = Token("IDENT", "")
+            value = Token("INTLIT", "")
+            for tree in tokens:
+                for token in tree.children:
+                    if isinstance(token, Comment):
+                        comment = token
+                    elif isinstance(token, Token):
+                        if token.type == "IDENT":
+                            name = token
+                        elif token.type == "INTLIT":
+                            value = token
+                        elif token.type == "COMMENTS":
+                            comment = Comment(token.value, {})
             enumitems.append(Field(comment, 'enum', 'enum', 'enum', name.value, value.value))
         return enumitems
 

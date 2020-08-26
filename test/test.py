@@ -35,7 +35,7 @@ enum PlayerType {
     //cheater
     CHEATER = 1;
     //tester
-    TESTER = 2;
+    TESTER = 2;//tedsafdas
     //deleted player
     DELETE = 3;
 }
