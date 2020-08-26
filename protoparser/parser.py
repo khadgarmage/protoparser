@@ -78,7 +78,7 @@ repeatedfield: [ comments ] "repeated" field
 oneof: "oneof" ONEOFNAME "{" ( oneoffield | EMPTYSTATEMENT )* "}"
 oneoffield: TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
 
-mapfield: [ comments ] "map" "<" KEYTYPE "," TYPE ">" MAPNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
+mapfield: [ comments ] "map" "<" KEYTYPE "," TYPE ">" MAPNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";" [ TAILCOMMENT ]
 KEYTYPE: "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
 
 reserved: "reserved" ( ranges | fieldnames ) ";"
@@ -101,7 +101,7 @@ rpc: [ comments ] "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [
 proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
 topleveldef: message | enum | service
 
-TAILCOMMENT: /[^\0\n\\]/ COMMENT
+TAILCOMMENT: [ /[^\0\n\\]/ ] COMMENT
 COMMENT: "//" /.*/ "\n"
 comments: COMMENT ( COMMENT )*
 COMMENTS: COMMENT ( COMMENT )*
@@ -185,10 +185,24 @@ class ProtoTransformer(Transformer):
     def mapfield(self, tokens):
         '''Returns a Field namedtuple'''
         comment = Comment("", {})
-        if len(tokens) < 5:
-            key_type, val_type, fieldname, fieldnumber = tuple(tokens)
-        else:
-            comment, key_type, val_type, fieldname, fieldnumber = tuple(tokens)
+        val_type = Token("TYPE", "")
+        key_type = Token("KEYTYPE", "")
+        fieldname = Token("MAPNAME", "")
+        fieldnumber = Token("FIELDNUMBER", "")
+        for token in tokens:
+            if isinstance(token, Comment):
+                comment = token
+            elif isinstance(token, Token):
+                if token.type == "TYPE":
+                    val_type = token
+                elif token.type == "KEYTYPE":
+                    key_type = token
+                elif token.type == "MAPNAME":
+                    fieldname = token
+                elif token.type == "FIELDNUMBER":
+                    fieldnumber = token
+                elif token.type == "COMMENT":
+                    comment = Comment(token.value, {})
         return Field(comment, 'map', key_type.value, val_type.value, fieldname.value, int(fieldnumber.value))
 
     def comments(self, tokens):

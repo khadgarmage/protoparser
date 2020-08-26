@@ -72,7 +72,11 @@ message Player {
         TEST = 0;
         OK = 1;
     }
-    repeated string _tags_ = 19; //fdsafdsaf
+    repeated string _tags_ = 19;//你好啊
+}
+
+message MissionTeamSaveResponse {
+    map<int32, int32> MissionTeam = 1;//你好啊
 }
 
 //fdsafsadfdsafsa
@@ -93,7 +97,7 @@ service JobFileService {
     }
 }
 '''
-#data = protoparser.parse(content)
+# data = protoparser.parse(content)
 # for i in data.messages:
 #     message = data.messages[i]
 print(protoparser.serialize2json(content))
