@@ -29,6 +29,13 @@ message MessageItem {
     string Content = 2;
 }
 
+//背包类型
+enum BagType {
+  Other = 0;
+  Bag = 1;
+  Store = 2;
+}
+
 enum PlayerType {
     //normal player
     NORMAL = 0;

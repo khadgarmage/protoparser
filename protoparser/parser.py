@@ -240,23 +240,22 @@ class ProtoTransformer(Transformer):
     def enumbody(self, tokens):
         '''Returns a sequence of enum identifiers'''
         enumitems = []
-        for enumfield in tokens:
-            if enumfield.data != 'enumfield':
+        for tree in tokens:
+            if tree.data != 'enumfield':
                 continue
             comment = Comment("", {})
             name = Token("IDENT", "")
             value = Token("INTLIT", "")
-            for tree in tokens:
-                for token in tree.children:
-                    if isinstance(token, Comment):
-                        comment = token
-                    elif isinstance(token, Token):
-                        if token.type == "IDENT":
-                            name = token
-                        elif token.type == "INTLIT":
-                            value = token
-                        elif token.type == "COMMENTS":
-                            comment = Comment(token.value, {})
+            for token in tree.children:
+                if isinstance(token, Comment):
+                    comment = token
+                elif isinstance(token, Token):
+                    if token.type == "IDENT":
+                        name = token
+                    elif token.type == "INTLIT":
+                        value = token
+                    elif token.type == "COMMENTS":
+                        comment = Comment(token.value, {})
             enumitems.append(Field(comment, 'enum', 'enum', 'enum', name.value, value.value))
         return enumitems
 
