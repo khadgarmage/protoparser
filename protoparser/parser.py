@@ -99,7 +99,7 @@ service: [ comments ] "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT 
 rpc: [ comments ] "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [ "stream" ] MESSAGETYPE ")" ( ( "{" ( googleoption | option | EMPTYSTATEMENT )* "}" ) | ";" )
 
 proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
-topleveldef: message | enum | service
+topleveldef: message | enum | service | comments
 
 TAILCOMMENT: [ /[^\0\n\\]/ ] COMMENT
 COMMENT: "//" /.*/ "\n"

@@ -24,6 +24,8 @@ option go_package = "bitbucket.org/funplus/sandwichgmt/backend/pkg/gen/service";
 import "msg/job_file.proto";
 import "google/api/annotations.proto";
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 message MessageItem {
     string Title = 1;
     string Content = 2;
@@ -37,7 +39,7 @@ enum BagType {
 }
 
 enum PlayerType {
-    //normal player
+    //@ignore
     NORMAL = 0;
     //cheater
     CHEATER = 1;
