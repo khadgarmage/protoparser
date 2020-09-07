@@ -101,7 +101,7 @@ rpc: [ comments ] "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [
 proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
 topleveldef: message | enum | service | comments
 
-TAIL: ";" [ COMMENT ]
+TAIL: ";" [/[\s|\t]/] [ COMMENT ]
 COMMENT: "//" /.*/ [ "\n" ]
 comments: COMMENT ( COMMENT )*
 COMMENTS: COMMENT ( COMMENT )*

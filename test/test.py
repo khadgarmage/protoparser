@@ -24,6 +24,8 @@ option go_package = "bitbucket.org/funplus/sandwichgmt/backend/pkg/gen/service";
 import "msg/job_file.proto";
 import "google/api/annotations.proto";
 
+//
+
 message MessageItem {
     string Title = 1;
     string Content = 2;//你好啊
@@ -75,7 +77,7 @@ message Player {
     //fmt =email
     string Email = 10;
     //@pattern=^(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]$
-    string HomePage = 11;
+    string HomePage = 11; //
     enum InnerType {
         TEST = 0;
         OK = 1;
@@ -84,7 +86,7 @@ message Player {
 }
 
 message MissionTeamSaveResponse {
-    map<int32, int32> MissionTeam = 1;//你好啊
+    map<int32, int32> MissionTeam = 1; //你好啊
 }
 
 //fdsafsadfdsafsa
@@ -103,6 +105,10 @@ service JobFileService {
             body: "*"
         };
     }
+}
+
+message Daadd {
+    map<int32, int32> MissionTeam = 1; // ewrew
 }
 '''
 # data = protoparser.parse(content)
