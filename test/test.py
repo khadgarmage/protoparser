@@ -24,11 +24,9 @@ option go_package = "bitbucket.org/funplus/sandwichgmt/backend/pkg/gen/service";
 import "msg/job_file.proto";
 import "google/api/annotations.proto";
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-
 message MessageItem {
     string Title = 1;
-    string Content = 2;
+    string Content = 2;//你好啊
 }
 
 //背包类型
@@ -44,7 +42,7 @@ enum PlayerType {
     //cheater
     CHEATER = 1;
     //tester
-    TESTER = 2;//tedsafdas
+    TESTER = 2;
     //deleted player
     DELETE = 3;
 }
@@ -53,9 +51,10 @@ enum PlayerType {
 //@schema
 message Player {
     //player id
-    uint64 PlayerId = 1;
-    string Name = 2 [deprecated = true];
-    // @max =1000
+    uint64 PlayerId = 1;//Player ID
+    //Name
+    string Name = 2;
+    //@max=1000
     int32 Level = 3;
     int32 Coins = 4;
     //@fmt=date

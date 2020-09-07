@@ -70,7 +70,7 @@ OPTIONNAME: ( IDENT | "(" FULLIDENT ")" ) ( "." IDENT )*
 TYPE: "double" | "float" | "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string" | "bytes" | MESSAGETYPE | ENUMTYPE
 FIELDNUMBER: INTLIT
 
-field: [ comments ] TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";" [ TAILCOMMENT ]
+field: [ comments ] TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] TAIL
 fieldoptions: fieldoption ( ","  fieldoption )*
 fieldoption: OPTIONNAME "=" CONSTANT
 repeatedfield: [ comments ] "repeated" field
@@ -78,7 +78,7 @@ repeatedfield: [ comments ] "repeated" field
 oneof: "oneof" ONEOFNAME "{" ( oneoffield | EMPTYSTATEMENT )* "}"
 oneoffield: TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
 
-mapfield: [ comments ] "map" "<" KEYTYPE "," TYPE ">" MAPNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";" [ TAILCOMMENT ]
+mapfield: [ comments ] "map" "<" KEYTYPE "," TYPE ">" MAPNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] TAIL
 KEYTYPE: "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
 
 reserved: "reserved" ( ranges | fieldnames ) ";"
@@ -88,7 +88,7 @@ fieldnames: FIELDNAME ( "," FIELDNAME )*
 
 enum: [ comments ] "enum" ENUMNAME enumbody
 enumbody: "{" ( enumfield | EMPTYSTATEMENT )* "}"
-enumfield: [ COMMENTS ] IDENT "=" INTLIT [ "[" enumvalueoption ( ","  enumvalueoption )* "]" ] ";" [ TAILCOMMENT ]
+enumfield: [ COMMENTS ] IDENT "=" INTLIT [ "[" enumvalueoption ( ","  enumvalueoption )* "]" ] TAIL
 enumvalueoption: OPTIONNAME "=" CONSTANT
 
 message: [ comments ] "message" MESSAGENAME messagebody
@@ -101,7 +101,7 @@ rpc: [ comments ] "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [
 proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
 topleveldef: message | enum | service | comments
 
-TAILCOMMENT: [ /[^\0\n\\]/ ] COMMENT
+TAIL: ";" [ COMMENT ]
 COMMENT: "//" /.*/ "\n"
 comments: COMMENT ( COMMENT )*
 COMMENTS: COMMENT ( COMMENT )*
