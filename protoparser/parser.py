@@ -102,7 +102,7 @@ proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATE
 topleveldef: message | enum | service | comments
 
 TAIL: ";" [ COMMENT ]
-COMMENT: "//" /.*/ "\n"
+COMMENT: "//" /.*/ [ "\n" ]
 comments: COMMENT ( COMMENT )*
 COMMENTS: COMMENT ( COMMENT )*
 
