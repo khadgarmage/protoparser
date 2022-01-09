@@ -33,6 +33,7 @@ SERVICENAME: IDENT
 TAGNAME: IDENT
 TAGVALUE: IDENT
 RPCNAME: IDENT
+QUALIFIER: ( "stream" )
 MESSAGETYPE: [ "." ] ( IDENT "." )* MESSAGENAME
 ENUMTYPE: [ "." ] ( IDENT "." )* ENUMNAME
 
@@ -96,7 +97,7 @@ messagebody: "{" ( repeatedfield | field | enum | message | option | oneof | map
 
 googleoption: "option" "(google.api.http)"  "=" "{" [ "post:" CONSTANT [ "body:" CONSTANT ] ] "}" ";"
 service: [ comments ] "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT )* "}"
-rpc: [ comments ] "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [ "stream" ] MESSAGETYPE ")" ( ( "{" ( googleoption | option | EMPTYSTATEMENT )* "}" ) | ";" )
+rpc: [ comments ] "rpc" RPCNAME "(" ( QUALIFIER )* MESSAGETYPE ")" "returns" "(" ( QUALIFIER )* MESSAGETYPE ")" ( ( "{" ( googleoption | option | EMPTYSTATEMENT )* "}" ) | ";" )
 
 proto:[ comments ] syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
 topleveldef: message | enum | service | comments
@@ -120,7 +121,7 @@ Enum = typing.NamedTuple('Enum', [('comment', 'Comment'), ('name', str), ('field
 Message = typing.NamedTuple('Message', [('comment', 'Comment'), ('name', str), ('fields', typing.List['Field']),
                                         ('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum'])])
 Service = typing.NamedTuple('Service', [('name', str), ('functions', typing.Dict[str, 'RpcFunc'])])
-RpcFunc = typing.NamedTuple('RpcFunc', [('name', str), ('in_type', str), ('out_type', str), ('uri', str)])
+RpcFunc = typing.NamedTuple('RpcFunc', [('name', str), ('in_stream', bool), ('in_type', str), ('out_stream', bool), ('out_type', str), ('uri', str)])
 ProtoFile = typing.NamedTuple('ProtoFile',
                               [('messages', typing.Dict[str, 'Message']), ('enums', typing.Dict[str, 'Enum']),
                                ('services', typing.Dict[str, 'Service']), ('imports', typing.List[str]),
@@ -275,6 +276,8 @@ class ProtoTransformer(Transformer):
         '''Returns a RpcFunc namedtuple'''
         uri = ''
         in_type = ''
+        in_stream = False
+        out_stream = False
         for token in tokens:
             if isinstance(token, Token):
                 if token.type == "RPCNAME":
@@ -284,10 +287,15 @@ class ProtoTransformer(Transformer):
                         out_type = token
                     else:
                         in_type = token
+                elif token.type == "QUALIFIER":
+                    if in_type:
+                        out_stream = token.value == "stream"
+                    else:
+                        in_stream = token.value == "stream"
             elif not isinstance(token, Comment):
                 option_token = token
                 uri = option_token.children[0].value
-        return RpcFunc(name.value, in_type.value, out_type.value, uri.strip('"'))
+        return RpcFunc(name.value, in_stream, in_type.value, out_stream, out_type.value, uri.strip('"'))
 
 
 def _recursive_to_dict(obj):
