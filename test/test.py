@@ -82,6 +82,7 @@ message Player {
         TEST = 0;
         OK = 1;
     }
+    optional string optional_string = 12;
     repeated string _tags_ = 19;//你好啊
 }
 
