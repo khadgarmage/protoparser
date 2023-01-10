@@ -15,8 +15,8 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-from lark import Lark, Transformer, Tree, Token
-from collections import namedtuple
+
+from lark import Lark, Transformer, Token
 import typing
 import json
 
@@ -74,6 +74,7 @@ field: [ comments ] TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] TAIL
 fieldoptions: fieldoption ( ","  fieldoption )*
 fieldoption: OPTIONNAME "=" CONSTANT
 repeatedfield: [ comments ] "repeated" field
+optionalfield: [ comments ] "optional" field
 
 oneof: "oneof" ONEOFNAME "{" ( oneoffield | EMPTYSTATEMENT )* "}"
 oneoffield: TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
@@ -92,7 +93,7 @@ enumfield: [ COMMENTS ] IDENT "=" INTLIT [ "[" enumvalueoption ( ","  enumvalueo
 enumvalueoption: OPTIONNAME "=" CONSTANT
 
 message: [ comments ] "message" MESSAGENAME messagebody
-messagebody: "{" ( repeatedfield | field | enum | message | option | oneof | mapfield | reserved | EMPTYSTATEMENT )* "}"
+messagebody: "{" ( repeatedfield | optionalfield | field | enum | message | option | oneof | mapfield | reserved | EMPTYSTATEMENT )* "}"
 
 googleoption: "option" "(google.api.http)"  "=" "{" [ "post:" CONSTANT [ "body:" CONSTANT ] ] "}" ";"
 service: [ comments ] "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT )* "}"
@@ -181,6 +182,15 @@ class ProtoTransformer(Transformer):
         else:
             comment, field = tuple(tokens)
         return Field(comment, 'repeated', field.type, field.type, field.name, field.number)
+
+    def optionalfield(self, tokens):
+        '''Returns a Field namedtuple'''
+        comment = Comment("", {})
+        if len(tokens) < 2:
+            field = tokens[0]
+        else:
+            comment, field = tuple(tokens)
+        return Field(comment, 'optional', field.type, field.type, field.name, field.number)
 
     def mapfield(self, tokens):
         '''Returns a Field namedtuple'''
